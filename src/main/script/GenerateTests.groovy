@@ -67,6 +67,13 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Test class that execute a particular set of tests associated to a TESCASES tag from the XML W3C Conformance Tests.
+ * TESCASES PROFILE: <pre>${xmlTESTCASES.'@PROFILE'}</pre>
+ * XML test files base folder: <pre>${BaseResourceTestDir}${basePath}</pre>
+ * 
+ * @author <a href="mailto:belingueres@gmail.com">Gabriel Belingueres</a>
+ */
 public class ${testClassName} {
 
   final static File testResourcesDir = new File("src/test/resources/", "${BaseResourceTestDir}${basePath}");
@@ -189,10 +196,9 @@ public class ${testClassName} {
   public String getClassName(String profile, String basePath) {
     if (profile.isEmpty()) {
       String str = basePath.replace(' ', '').replace('.', '').replace(',', '').replace('\'', '').replace('/', '_').replace('-', '_')
-      // remove last '_'
-      return str.substring(0, str.length() - 1)
+      return str + 'Test'
     }
-    return profile.replace(' ', '').replace('.', '').replace(',', '').replace('\'', '').replace('/', '_').replace('-', '_')
+    return profile.replace(' ', '').replace('.', '').replace(',', '').replace('\'', '').replace('/', '_').replace('-', '_') + '_Test'
   }
   
 }
