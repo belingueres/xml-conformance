@@ -1,6 +1,6 @@
 class GenerateTests {
 
-  final static JavaPackage = "com.gbelingueres.conformance.xml_conformance"
+  final static JavaPackage = "org.codehaus.plexus.util.xml.pull"
   final static JavaPackageDir = JavaPackage.replace('.', '/')
 
   final static BaseResourceTestDir = "xmlconf/"
@@ -49,21 +49,17 @@ class GenerateTests {
   }
   
   public void generateTestClass(Object xmlTESTCASES, String testClassName, String basePath) {
-    String strClass = """
-package ${JavaPackage};
+    String strClass = 
+"""package ${JavaPackage};
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.codehaus.plexus.util.xml.pull.MXParser;
-import org.codehaus.plexus.util.xml.pull.XmlPullParser;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -71,19 +67,21 @@ import org.junit.Test;
  * Test class that execute a particular set of tests associated to a TESCASES tag from the XML W3C Conformance Tests.
  * TESCASES PROFILE: <pre>${xmlTESTCASES.'@PROFILE'}</pre>
  * XML test files base folder: <pre>${BaseResourceTestDir}${basePath}</pre>
- * 
+ *
  * @author <a href="mailto:belingueres@gmail.com">Gabriel Belingueres</a>
  */
-public class ${testClassName} {
+public class ${testClassName}
+{
 
-  final static File testResourcesDir = new File("src/test/resources/", "${BaseResourceTestDir}${basePath}");
+    final static File testResourcesDir = new File("src/test/resources/", "${BaseResourceTestDir}${basePath}");
 
-  MXParser parser;
-  
-  @Before
-  public void setUp() {
-    parser = new MXParser();
-  }
+    MXParser parser;
+
+    @Before
+    public void setUp()
+    {
+        parser = new MXParser();
+    }
     """
 
     String testMethods = "";
@@ -112,8 +110,7 @@ public class ${testClassName} {
     
     strClass += testMethods + """
     
-}
-    """
+}"""
     
     saveClassFile(testClassName, strClass)
   }
@@ -133,17 +130,25 @@ public class ${testClassName} {
     String testURI = xmlTest.@URI
     String testComment = xmlTest.text().replace('\n', ' ').replace('\\"','\"').replace('"','\\"').replace('\\>', '\\\\>').trim()
     String testMethod = generateJavadoc(xmlTest) +
-    """
-  @Test(expected=XmlPullParserException.class)
-  public void test${testID}() throws FileNotFoundException, IOException, XmlPullParserException {
-    try(Reader reader = new FileReader(new File(testResourcesDir, "${testURI}"))) {
-      parser.setInput(reader);
-      while (parser.nextToken() != XmlPullParser.END_DOCUMENT);
-      fail("${testComment}");
+"""
+    @Test
+    public void test${testID}()
+        throws IOException
+    {
+        try( Reader reader = new FileReader( new File( testResourcesDir, "${testURI}" ) ) )
+        {
+            parser.setInput(reader);
+            while (parser.nextToken() != XmlPullParser.END_DOCUMENT)
+                ;
+            fail("${testComment}");
+        }
+        catch ( XmlPullParserException e )
+        {
+            assertTrue( true );
+        }
     }
-  }
-        
-    """
+
+"""
     return testMethod
   }
 
@@ -153,20 +158,25 @@ public class ${testClassName} {
     String testURI = xmlTest.@URI
     String testComment = xmlTest.text().replace('\n', ' ').replace('\\"','\"').replace('"','\\"').replace('\\>', '\\\\>').trim()
     String testMethod = generateJavadoc(xmlTest) +
-    """
-  @Test
-  public void test${testID}() throws FileNotFoundException, IOException, XmlPullParserException {
-    try(Reader reader = new FileReader(new File(testResourcesDir, "${testURI}"))) {
-      parser.setInput(reader);
-      while (parser.nextToken() != XmlPullParser.END_DOCUMENT);
-      assertTrue("${testComment}", true);
-    }
-    catch (XmlPullParserException ex) {
-      fail("${testComment}");
-    }
+"""
+    @Test
+    public void test${testID}()
+        throws IOException
+    {
+        try( Reader reader = new FileReader( new File( testResourcesDir, "${testURI}" ) ) )
+        {
+            parser.setInput(reader);
+            while (parser.nextToken() != XmlPullParser.END_DOCUMENT)
+                ;
+            assertTrue("${testComment}", true);
+        }
+        catch (XmlPullParserException ex)
+        {
+            fail("${testComment}");
+        }
   }
-        
-    """
+
+"""
     return testMethod
   }
   
@@ -175,21 +185,18 @@ public class ${testClassName} {
     String testURI = xmlTest.@URI
     String testComment = xmlTest.text().replace('\n', ' ').replace('\\>', '\\\\>').replace('>', '&#62;').replace('<', '&#60;').replace('&', '&#38;').trim()
     String testVersion = xmlTest.@VERSION
-    testVersion = testVersion.isEmpty() ? testVersion : "<pre>${testVersion}</pre>"
+    testVersion = testVersion.isEmpty() ? testVersion : " <pre>${testVersion}</pre>"
     String javadoc =
-    """
-  /**
-   * Test ID: <pre>${testID}</pre>
-   * Test URI: <pre>${testURI}</pre>
-   * Comment: <pre>${testComment}</pre>
-   * Sections: <pre>${xmlTest.@SECTIONS}</pre>
-   * Version: ${testVersion}
-   *
-   * @throws XmlPullParserException if there is a problem parsing the XML file
-   * @throws FileNotFoundException if the testing XML file is not found
-   * @throws IOException if there is an I/O error
-   */
-   """
+"""
+    /**
+     * Test ID: <pre>${testID}</pre>
+     * Test URI: <pre>${testURI}</pre>
+     * Comment: <pre>${testComment}</pre>
+     * Sections: <pre>${xmlTest.@SECTIONS}</pre>
+     * Version:${testVersion}
+     *
+     * @throws IOException if there is an I/O error
+     */"""
    return javadoc
   }
 
